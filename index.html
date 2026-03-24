@@ -1699,5 +1699,345 @@ After you've covered all topics (usually 10-14 exchanges), tell the client you h
 
 </div>
 
+
+<!-- ══════════════════════════════════════════
+     SCREEN 5: MODULE 3 — LEAD MAGNET
+══════════════════════════════════════════ -->
+<div id="screen-module3" class="screen" style="background:var(--cream);">
+
+  <style>
+    .branch-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 0.75rem;
+    }
+    .branch-card:hover { border-color: var(--teal); box-shadow: 0 2px 12px rgba(2,82,93,0.08); }
+    .branch-card.selected { border-color: var(--coral); background: #fff8f5; }
+    .branch-card-title { font-family: "Lora", serif; font-size: 16px; color: var(--teal); margin-bottom: 0.25rem; }
+    .branch-card-desc { font-size: 13px; color: var(--text-mid); }
+
+    .m3-section { display: none; }
+    .m3-section.visible { display: block; }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .step-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background 0.2s;
+    }
+    .step-dot.active { background: var(--coral); }
+    .step-dot.done { background: var(--teal); }
+    .step-label { font-size: 12px; color: var(--text-light); margin-left: 0.25rem; }
+
+    .past-lm-item {
+      background: var(--cream);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 13px;
+      color: var(--text-mid);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+  </style>
+
+  <div class="module-header">
+    <button class="back-btn" onclick="goToDashboard()">← Dashboard</button>
+    <div class="module-header-info">
+      <div class="module-header-eyebrow">Module 3</div>
+      <div class="module-header-title">Your Lead Magnet</div>
+    </div>
+  </div>
+
+  <div class="module-body">
+
+    <!-- Step indicator -->
+    <div class="step-indicator" id="m3-steps">
+      <div class="step-dot active" id="m3-dot-1"></div>
+      <div class="step-dot" id="m3-dot-2"></div>
+      <div class="step-dot" id="m3-dot-3"></div>
+      <span class="step-label" id="m3-step-label">Step 1 of 3</span>
+    </div>
+
+    <!-- ── STEP 1: Have you had a lead magnet before? ── -->
+    <div class="m3-section visible" id="m3-step1">
+      <div class="section-label">Lead Magnet History</div>
+
+      <div class="field-group">
+        <label class="field-label">Have you ever created a lead magnet before — even if it's no longer active?</label>
+        <p class="field-hint">A freebie, guide, checklist, quiz, workshop — anything you've offered in exchange for an email.</p>
+        <div class="radio-group">
+          <label class="radio-option" id="r-hadlm-yes" onclick="selectBranchRadio('hadlm', 'yes', this)">
+            <input type="radio" name="hadlm" value="yes" />
+            <div><div class="radio-label">Yes — I've had at least one before</div></div>
+          </label>
+          <label class="radio-option" id="r-hadlm-no" onclick="selectBranchRadio('hadlm', 'no', this)">
+            <input type="radio" name="hadlm" value="no" />
+            <div><div class="radio-label">No — this would be my first one</div></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- If they had one before — what was it -->
+      <div class="field-group m3-section" id="m3-pastlm-detail">
+        <label class="field-label" for="f-past-lm">Tell us about it — what was it, and what happened with it?</label>
+        <p class="field-hint">What was the topic? Did people download it? Why aren't you using it now?</p>
+        <textarea class="field-textarea" id="f-past-lm" placeholder="e.g. I had a 3-day meal plan PDF — people downloaded it but it didn't lead to many bookings. I think the topic was too broad..."></textarea>
+      </div>
+
+      <div class="field-group m3-section" id="m3-pastlm-why">
+        <label class="field-label" for="f-past-lm-why">What do you think didn't work about it?</label>
+        <textarea class="field-textarea" id="f-past-lm-why" placeholder="e.g. It attracted the wrong people, or it didn't connect to my offer clearly enough..."></textarea>
+      </div>
+
+      <button class="btn-save" style="margin-top:0.5rem" onclick="m3GoToStep2()">Next →</button>
+    </div>
+
+    <!-- ── STEP 2: For THIS campaign — what do you want to do? ── -->
+    <div class="m3-section" id="m3-step2">
+      <div class="section-label">For This Campaign</div>
+
+      <div class="field-group">
+        <label class="field-label">Do you currently have a lead magnet you want to use for this campaign?</label>
+        <p class="field-hint">You might have something that's working great — or you might want something fresh. Either is completely fine.</p>
+
+        <div id="m3-branch-options">
+          <!-- Options injected by JS based on step 1 answer -->
+        </div>
+      </div>
+
+      <button class="btn-save" style="margin-top:0.5rem" onclick="m3GoToStep3()">Next →</button>
+    </div>
+
+    <!-- ── STEP 3A: CREATE NEW ── -->
+    <div class="m3-section" id="m3-step3-new">
+      <div class="section-label">Building Your Lead Magnet</div>
+
+      <div class="field-group" id="m3-why-not-existing" style="display:none">
+        <label class="field-label" for="f-why-not-existing">Why not use an existing one for this campaign?</label>
+        <textarea class="field-textarea" id="f-why-not-existing" placeholder="e.g. My existing one doesn't connect to this offer, or I want something fresher..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-lm-topic">What topic feels most relevant to your ideal client right now?</label>
+        <p class="field-hint">Think about what they're Googling, what questions they ask you most, what keeps them up at night.</p>
+        <textarea class="field-textarea" id="f-lm-topic" placeholder="e.g. How to stop yo-yo dieting without giving up the foods you love..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">After downloading, what's the ONE thing you want them to do next?</label>
+        <div class="radio-group">
+          <label class="radio-option" id="r-lmcta-call" onclick="selectBranchRadio('lmcta', 'call', this)">
+            <input type="radio" name="lmcta" value="Book a free discovery call" />
+            <div><div class="radio-label">Book a free discovery call</div></div>
+          </label>
+          <label class="radio-option" id="r-lmcta-buy" onclick="selectBranchRadio('lmcta', 'buy', this)">
+            <input type="radio" name="lmcta" value="Purchase an offer" />
+            <div><div class="radio-label">Purchase an offer</div></div>
+          </label>
+          <label class="radio-option" id="r-lmcta-wait" onclick="selectBranchRadio('lmcta', 'wait', this)">
+            <input type="radio" name="lmcta" value="Join a waitlist" />
+            <div><div class="radio-label">Join a waitlist</div></div>
+          </label>
+          <label class="radio-option" id="r-lmcta-nurture" onclick="selectBranchRadio('lmcta', 'nurture', this)">
+            <input type="radio" name="lmcta" value="Just nurture them — no immediate CTA" />
+            <div><div class="radio-label">Just nurture them — no immediate CTA</div></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Do you want them to take action or gain knowledge?</label>
+        <p class="field-hint">This helps us decide between a workbook (action-oriented) and a guide (educational). We'll make the final call — just share your instinct.</p>
+        <div class="radio-group">
+          <label class="radio-option" id="r-lmformat-action" onclick="selectBranchRadio('lmformat', 'action', this)">
+            <input type="radio" name="lmformat" value="Take action — I want them to do something" />
+            <div>
+              <div class="radio-label">Take action — I want them to DO something</div>
+              <div class="radio-sublabel">Points toward a workbook format</div>
+            </div>
+          </label>
+          <label class="radio-option" id="r-lmformat-learn" onclick="selectBranchRadio('lmformat', 'learn', this)">
+            <input type="radio" name="lmformat" value="Gain knowledge — I want to educate them" />
+            <div>
+              <div class="radio-label">Gain knowledge — I want to EDUCATE them</div>
+              <div class="radio-sublabel">Points toward a guide format</div>
+            </div>
+          </label>
+          <label class="radio-option" id="r-lmformat-unsure" onclick="selectBranchRadio('lmformat', 'unsure', this)">
+            <input type="radio" name="lmformat" value="Not sure — you decide!" />
+            <div><div class="radio-label">Not sure — you decide!</div></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-lm-transformation">What should someone be able to do, feel, or understand after going through your lead magnet?</label>
+        <textarea class="field-textarea" id="f-lm-transformation" placeholder="e.g. Feel confident that they can improve their relationship with food without another restrictive diet..."></textarea>
+      </div>
+
+      <button class="btn-save" onclick="saveModule3()">Save + Continue →</button>
+    </div>
+
+    <!-- ── STEP 3B: USE EXISTING ── -->
+    <div class="m3-section" id="m3-step3-existing">
+      <div class="section-label">Your Existing Lead Magnet</div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-existing-name">What's it called and what's it about?</label>
+        <input class="field-input" id="f-existing-name" type="text" placeholder="e.g. 5-Day Anti-Inflammatory Meal Plan" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-existing-link">Do you have a link to it we can review?</label>
+        <input class="field-input" id="f-existing-link" type="url" placeholder="https://..." />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-existing-working">What's working well about it?</label>
+        <p class="field-hint">Good download rate? Great feedback? Strong connection to your offer? Tell us what to preserve.</p>
+        <textarea class="field-textarea" id="f-existing-working" placeholder="e.g. People always say the recipes are super practical and easy to follow..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-existing-freshen">Is there anything you'd like to freshen up or update?</label>
+        <textarea class="field-textarea" id="f-existing-freshen" placeholder="e.g. The design feels dated, or I'd like to add a stronger CTA at the end..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">After downloading, what's the ONE thing you want them to do next?</label>
+        <div class="radio-group">
+          <label class="radio-option" id="r-elmcta-call" onclick="selectBranchRadio('elmcta', 'call', this)">
+            <input type="radio" name="elmcta" value="Book a free discovery call" />
+            <div><div class="radio-label">Book a free discovery call</div></div>
+          </label>
+          <label class="radio-option" id="r-elmcta-buy" onclick="selectBranchRadio('elmcta', 'buy', this)">
+            <input type="radio" name="elmcta" value="Purchase an offer" />
+            <div><div class="radio-label">Purchase an offer</div></div>
+          </label>
+          <label class="radio-option" id="r-elmcta-wait" onclick="selectBranchRadio('elmcta', 'wait', this)">
+            <input type="radio" name="elmcta" value="Join a waitlist" />
+            <div><div class="radio-label">Join a waitlist</div></div>
+          </label>
+          <label class="radio-option" id="r-elmcta-nurture" onclick="selectBranchRadio('elmcta', 'nurture', this)">
+            <input type="radio" name="elmcta" value="Just nurture them" />
+            <div><div class="radio-label">Just nurture them — no immediate CTA</div></div>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn-save" onclick="saveModule3()">Save + Continue →</button>
+    </div>
+
+    <!-- ── STEP 3C: IMPROVE EXISTING ── -->
+    <div class="m3-section" id="m3-step3-improve">
+      <div class="section-label">Improving Your Lead Magnet</div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-improve-name">Which lead magnet do you want to improve?</label>
+        <input class="field-input" id="f-improve-name" type="text" placeholder="e.g. 7-Day Gut Health Reset Guide" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-improve-link">Link to it if you have one</label>
+        <input class="field-input" id="f-improve-link" type="url" placeholder="https://..." />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-improve-issues">What's not working about it right now?</label>
+        <p class="field-hint">Low downloads? Not connecting to your offer? Outdated content? Be as specific as you can.</p>
+        <textarea class="field-textarea" id="f-improve-issues" placeholder="e.g. People download it but never book a call — there's no clear next step..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-improve-goal">What's the new goal for it after we improve it?</label>
+        <textarea class="field-textarea" id="f-improve-goal" placeholder="e.g. I want it to clearly lead people toward booking a discovery call..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="f-improve-keep">Is there anything you definitely want to keep?</label>
+        <textarea class="field-textarea" id="f-improve-keep" placeholder="e.g. The core content is solid — just needs a redesign and a stronger CTA..."></textarea>
+      </div>
+
+      <button class="btn-save" onclick="saveModule3()">Save + Continue →</button>
+    </div>
+
+  </div>
+
+  <div class="saved-toast" id="saved-toast-m3">✓ Lead magnet info saved — Module 4 unlocked!</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 6: MODULE 4 — VOICE + EMAIL INTEL
+══════════════════════════════════════════ -->
+<div id="screen-module4" class="screen" style="background:var(--cream);">
+
+  <div class="module-header">
+    <button class="back-btn" onclick="goToDashboard()">← Dashboard</button>
+    <div class="module-header-info">
+      <div class="module-header-eyebrow">Module 4</div>
+      <div class="module-header-title">Voice + Email Intel</div>
+    </div>
+  </div>
+
+  <div class="m2-layout">
+
+    <div class="m2-intro">
+      <strong>Last one — and it's a conversation.</strong> I'll ask you about your voice, your story, and the specific details we need to write your welcome emails. Just answer naturally — the more you share, the better your emails will sound like <em>you</em>.
+    </div>
+
+    <div class="m2-chat-feed" id="m4-chat-feed">
+      <div class="m2-typing" id="m4-typing">
+        <div class="m2-typing-dot"></div>
+        <div class="m2-typing-dot"></div>
+        <div class="m2-typing-dot"></div>
+      </div>
+    </div>
+
+    <div id="m4-summary-container" class="m2-summary-container">
+      <div class="m2-summary-header">
+        <span class="m2-summary-badge">✓ Complete</span>
+        <span class="m2-summary-title">Voice + Email Intel Summary</span>
+      </div>
+      <div class="m2-summary-content" id="m4-summary-content"></div>
+    </div>
+
+    <div class="m2-input-area" id="m4-input-area">
+      <textarea
+        class="m2-input"
+        id="m4-input"
+        placeholder="Type your answer here..."
+        rows="1"
+        onkeydown="handleM4Input(event)"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"
+      ></textarea>
+      <button class="m2-send-btn" onclick="submitM4Message()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+
+    <button class="m2-complete-btn" id="m4-complete-btn" onclick="completeModule4()">
+      Save + Submit All Modules →
+    </button>
+
+  </div>
+
+  <div class="saved-toast" id="saved-toast-m4">✓ All done! Your team has been notified.</div>
+</div>
+
 </body>
 </html>
