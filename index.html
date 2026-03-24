@@ -920,28 +920,94 @@
      JAVASCRIPT
 ══════════════════════════════════════════ -->
 <script>
+  // ── Supabase Config ──
+  const SUPABASE_URL = 'https://rguqefwhlzehpzgljbdo.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJndXFlZndobHplaHB6Z2xqYmRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzYyMjYsImV4cCI6MjA4OTk1MjIyNn0.N8-BWjyTFMpdoTbKBik8jQdyA7YCPiq7nT_HdfxcMZ8';
+  const SB = `${SUPABASE_URL}/rest/v1`;
+
+  async function sbGet(email) {
+    const res = await fetch(`${SB}/clients?email=eq.${encodeURIComponent(email)}&limit=1`, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+    });
+    const rows = await res.json();
+    return rows && rows.length > 0 ? rows[0] : null;
+  }
+
+  async function sbUpsert(record) {
+    await fetch(`${SB}/clients?on_conflict=email`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify(record)
+    });
+  }
+
+  function dbToClient(row) {
+    return {
+      email: row.email,
+      createdAt: row.created_at,
+      modules: {
+        m1: row.module_1_status || 'todo',
+        m2: row.module_2_status || 'locked',
+        m3: row.module_3_status || 'locked',
+        m4: row.module_4_status || 'locked'
+      },
+      access: {
+        website: row.access_website || false,
+        email: row.access_email || false,
+        fb: row.access_fb || false
+      },
+      m1data: row.m1_data || {},
+      m2data: row.m2_data || {},
+      m3data: row.m3_data || {},
+      m4data: row.m4_data || {}
+    };
+  }
+
+  function clientToDb(data) {
+    return {
+      email: data.email,
+      module_1_status: data.modules.m1,
+      module_2_status: data.modules.m2,
+      module_3_status: data.modules.m3,
+      module_4_status: data.modules.m4,
+      access_website: data.access.website,
+      access_email: data.access.email,
+      access_fb: data.access.fb,
+      m1_data: data.m1data || {},
+      m2_data: data.m2data || {},
+      m3_data: data.m3data || {},
+      m4_data: data.m4data || {}
+    };
+  }
+
+  const EDGE_FN = 'https://rguqefwhlzehpzgljbdo.supabase.co/functions/v1/notion-sync';
+
+  async function saveClient(email, data) {
+    // 1. localStorage backup
+    try { localStorage.setItem('wbdyf_' + email, JSON.stringify(data)); } catch(e) {}
+    // 2. Supabase
+    try { await sbUpsert(clientToDb(data)); } catch(e) { console.warn('Supabase save failed:', e); }
+    // 3. Notion sync (non-blocking — fires and doesn't wait)
+    try {
+      fetch(EDGE_FN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(clientToDb(data))
+      }).catch(e => console.warn('Notion sync failed:', e));
+    } catch(e) {}
+  }
+
   // ── State ──
   let currentEmail = '';
   let clientData = {};
-
-  const STORAGE_PREFIX = 'wbdyf_';
-
-  function storageKey(email) {
-    return STORAGE_PREFIX + email.toLowerCase().trim();
-  }
-
-  function loadClient(email) {
-    try {
-      const raw = localStorage.getItem(storageKey(email));
-      return raw ? JSON.parse(raw) : null;
-    } catch(e) { return null; }
-  }
-
-  function saveClient(email, data) {
-    try {
-      localStorage.setItem(storageKey(email), JSON.stringify(data));
-    } catch(e) { console.warn('Storage unavailable'); }
-  }
 
   // ── Screen navigation ──
   function showScreen(id) {
@@ -950,10 +1016,16 @@
     window.scrollTo(0, 0);
   }
 
+  function setLandingLoading(loading) {
+    const btn = document.querySelector('#screen-landing .btn-primary');
+    btn.textContent = loading ? 'Loading...' : 'Continue →';
+    btn.disabled = loading;
+  }
+
   // ── Landing ──
-  function handleEmailSubmit() {
+  async function handleEmailSubmit() {
     const emailInput = document.getElementById('email-input');
-    const email = emailInput.value.trim();
+    const email = emailInput.value.trim().toLowerCase();
 
     if (!email || !email.includes('@')) {
       emailInput.style.borderColor = 'var(--coral)';
@@ -963,22 +1035,46 @@
 
     emailInput.style.borderColor = '';
     currentEmail = email;
+    setLandingLoading(true);
 
-    const existing = loadClient(email);
-    if (existing) {
-      clientData = existing;
-      document.getElementById('welcome-back-msg').style.display = 'block';
-      setTimeout(() => goToDashboard(), 800);
-    } else {
-      clientData = {
-        email: email,
-        createdAt: new Date().toISOString(),
-        modules: { m1: 'todo', m2: 'locked', m3: 'locked', m4: 'locked' },
-        access: { website: false, email: false, fb: false },
-        m1data: {}
-      };
-      saveClient(email, clientData);
-      goToDashboard();
+    try {
+      const existing = await sbGet(email);
+      if (existing) {
+        clientData = dbToClient(existing);
+        document.getElementById('welcome-back-msg').style.display = 'block';
+        setTimeout(() => { setLandingLoading(false); goToDashboard(); }, 700);
+      } else {
+        clientData = {
+          email: email,
+          createdAt: new Date().toISOString(),
+          modules: { m1: 'todo', m2: 'locked', m3: 'locked', m4: 'locked' },
+          access: { website: false, email: false, fb: false },
+          m1data: {}, m2data: {}, m3data: {}, m4data: {}
+        };
+        await saveClient(email, clientData);
+        setLandingLoading(false);
+        goToDashboard();
+      }
+    } catch(err) {
+      console.warn('Supabase unavailable, using localStorage:', err);
+      try {
+        const raw = localStorage.getItem('wbdyf_' + email);
+        if (raw) {
+          clientData = JSON.parse(raw);
+          document.getElementById('welcome-back-msg').style.display = 'block';
+          setTimeout(() => { setLandingLoading(false); goToDashboard(); }, 700);
+        } else {
+          clientData = {
+            email: email,
+            createdAt: new Date().toISOString(),
+            modules: { m1: 'todo', m2: 'locked', m3: 'locked', m4: 'locked' },
+            access: { website: false, email: false, fb: false },
+            m1data: {}, m2data: {}, m3data: {}, m4data: {}
+          };
+          setLandingLoading(false);
+          goToDashboard();
+        }
+      } catch(e2) { setLandingLoading(false); }
     }
   }
 
@@ -1146,7 +1242,462 @@
   document.getElementById('email-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') handleEmailSubmit();
   });
+
+  // ── Module 2 ──
+  function goToModule2() {
+    if (clientData.modules.m2 === 'locked') return;
+    if (clientData.modules.m2 === 'todo') {
+      clientData.modules.m2 = 'inprogress';
+      saveClient(currentEmail, clientData);
+    }
+    // Restore conversation if exists
+    m2History = (clientData.m2data && clientData.m2data.history) ? clientData.m2data.history : [];
+    m2Summary = (clientData.m2data && clientData.m2data.summary) ? clientData.m2data.summary : '';
+    renderM2Chat();
+    if (m2Summary) showM2Summary(m2Summary);
+    showScreen('screen-module2');
+    if (m2History.length === 0) startM2Conversation();
+  }
+
+  let m2History = [];
+  let m2Summary = '';
+  let m2IsTyping = false;
+
+  const M2_SYSTEM = `You are a warm, expert onboarding guide for Whitney Bateson Digital Strategy — a done-for-you lead gen funnel service for health and wellness professionals (dietitians, therapists, health coaches).
+
+Your job is to guide the client through a friendly conversation to deeply understand their ideal customer. You are NOT a form — you are a conversation. Ask one focused question at a time. Listen carefully and follow up when something is vague or interesting.
+
+Your tone: warm, encouraging, conversational — like a sharp colleague friend. Use the client's name if you know it. Never use jargon. Never be preachy or lecture-y. No bullet lists in your questions — just natural, flowing sentences.
+
+Topics to cover across the conversation (weave these in naturally, don't ask them in order like a list):
+1. Who their ideal client is — demographics, life stage, what their day looks like
+2. What transformation their ideal client is looking for — the ultimate outcome they want
+3. How their ideal client will feel once they achieve that
+4. The main problem or struggle their ideal client is dealing with right now
+5. What's gotten in the way — mental barriers, past attempts, external factors
+6. What they've already tried and why it didn't work
+7. What's happening in their life RIGHT NOW making this feel more urgent
+8. What makes their ideal client trust a provider — what do they value most
+9. Where their ideal client goes to find help — Google, Instagram, referrals, podcasts, etc.
+
+After you've covered all topics (usually 10-14 exchanges), tell the client you have everything you need and that you're going to put together their Ideal Client summary. Then output a clean ICA summary using EXACTLY this format — no extra commentary before or after it:
+
+---ICA_SUMMARY_START---
+**Name:** [a made-up first name that represents this client avatar]
+**Who They Are:** [2-3 sentences about demographics, life stage, day-to-day]
+**What They Want:** [the transformation they're seeking and how they'll feel when they get it]
+**What's In Their Way:** [their main struggles, barriers, what they've tried]
+**What's Happening Now:** [the life trigger making this urgent]
+**How They Decide:** [what makes them trust a provider, where they look for help]
+**In Their Own Words:** [1-2 sentences written as if the ideal client is speaking — capturing their voice and emotional state]
+---ICA_SUMMARY_END---`;
+
+  async function startM2Conversation() {
+    const name = clientData.m1data && clientData.m1data.firstname ? clientData.m1data.firstname : null;
+    const practype = clientData.m1data && clientData.m1data.practype ? clientData.m1data.practype : 'health professional';
+    const offer = clientData.m1data && clientData.m1data.offer ? clientData.m1data.offer : null;
+
+    let openingContext = `The client's name is ${name || 'unknown'}. They are a ${practype}.${offer ? ` Their main offer is: ${offer}.` : ''} Start the conversation warmly and ask your first question about their ideal client.`;
+
+    m2History = [{ role: 'user', content: openingContext }];
+    await sendM2Message(null);
+  }
+
+  async function sendM2Message(userText) {
+    if (m2IsTyping) return;
+
+    if (userText !== null) {
+      m2History.push({ role: 'user', content: userText });
+      appendM2Bubble('user', userText);
+      saveM2Progress();
+    }
+
+    m2IsTyping = true;
+    showM2Typing(true);
+    scrollM2Bottom();
+
+    try {
+      const messagesForAPI = userText === null ? m2History : m2History;
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: M2_SYSTEM,
+          messages: messagesForAPI
+        })
+      });
+
+      const data = await res.json();
+      const reply = data.content && data.content[0] ? data.content[0].text : 'Something went wrong — please try again.';
+
+      m2History.push({ role: 'assistant', content: reply });
+      showM2Typing(false);
+
+      // Check if this is the ICA summary
+      if (reply.includes('---ICA_SUMMARY_START---')) {
+        const summaryMatch = reply.match(/---ICA_SUMMARY_START---([\s\S]*?)---ICA_SUMMARY_END---/);
+        const preText = reply.split('---ICA_SUMMARY_START---')[0].trim();
+        if (preText) appendM2Bubble('assistant', preText);
+        if (summaryMatch) {
+          m2Summary = summaryMatch[1].trim();
+          saveM2Progress();
+          showM2Summary(m2Summary);
+        }
+      } else {
+        appendM2Bubble('assistant', reply);
+      }
+
+      saveM2Progress();
+    } catch(e) {
+      showM2Typing(false);
+      appendM2Bubble('assistant', 'Something went wrong connecting to the AI. Please check your connection and try again.');
+    }
+
+    m2IsTyping = false;
+    scrollM2Bottom();
+  }
+
+  function appendM2Bubble(role, text) {
+    const feed = document.getElementById('m2-chat-feed');
+    const wrap = document.createElement('div');
+    wrap.className = `m2-bubble-wrap ${role}`;
+    const bubble = document.createElement('div');
+    bubble.className = `m2-bubble ${role}`;
+    bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    wrap.appendChild(bubble);
+    feed.appendChild(wrap);
+    scrollM2Bottom();
+  }
+
+  function showM2Typing(show) {
+    document.getElementById('m2-typing').style.display = show ? 'flex' : 'none';
+    scrollM2Bottom();
+  }
+
+  function scrollM2Bottom() {
+    const feed = document.getElementById('m2-chat-feed');
+    setTimeout(() => { feed.scrollTop = feed.scrollHeight; }, 50);
+  }
+
+  function renderM2Chat() {
+    const feed = document.getElementById('m2-chat-feed');
+    feed.innerHTML = '';
+    // Skip the first system-context message
+    const displayHistory = m2History.filter((m,i) => !(i === 0 && m.role === 'user' && m.content.includes('The client\'s name is')));
+    displayHistory.forEach(m => appendM2Bubble(m.role, m.content));
+  }
+
+  function handleM2Input(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitM2Message();
+    }
+  }
+
+  function submitM2Message() {
+    const input = document.getElementById('m2-input');
+    const text = input.value.trim();
+    if (!text || m2IsTyping) return;
+    input.value = '';
+    sendM2Message(text);
+  }
+
+  function showM2Summary(summaryText) {
+    const container = document.getElementById('m2-summary-container');
+    container.style.display = 'block';
+    // Parse markdown bold
+    const formatted = summaryText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    document.getElementById('m2-summary-content').innerHTML = formatted;
+    document.getElementById('m2-input-area').style.display = 'none';
+    document.getElementById('m2-complete-btn').style.display = 'block';
+    scrollM2Bottom();
+  }
+
+  function saveM2Progress() {
+    clientData.m2data = {
+      history: m2History,
+      summary: m2Summary,
+      savedAt: new Date().toISOString()
+    };
+    saveClient(currentEmail, clientData);
+  }
+
+  function completeModule2() {
+    clientData.modules.m2 = 'done';
+    clientData.modules.m3 = 'todo';
+    saveClient(currentEmail, clientData);
+    const toast = document.getElementById('saved-toast-m2');
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      goToDashboard();
+    }, 1200);
+  }
+
+  // Unlock Module 2 click on dashboard
+  document.getElementById('card-m2').addEventListener('click', function() {
+    if (!this.classList.contains('locked')) goToModule2();
+  });
 </script>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4: MODULE 2 — ICA CONVERSATION
+══════════════════════════════════════════ -->
+<div id="screen-module2" class="screen" style="flex-direction:column;background:var(--cream);">
+
+  <style>
+    #screen-module2 { display:none; flex-direction:column; }
+    #screen-module2.active { display:flex; }
+
+    .m2-layout {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 64px);
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 1rem;
+    }
+
+    .m2-intro {
+      background: var(--sky-light);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0 0.75rem;
+      font-size: 13px;
+      color: var(--teal);
+      line-height: 1.6;
+      border: 1px solid var(--sky);
+      flex-shrink: 0;
+    }
+
+    .m2-intro strong { font-weight: 500; }
+
+    .m2-chat-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .m2-bubble-wrap {
+      display: flex;
+    }
+
+    .m2-bubble-wrap.user { justify-content: flex-end; }
+    .m2-bubble-wrap.assistant { justify-content: flex-start; }
+
+    .m2-bubble {
+      max-width: 82%;
+      padding: 0.75rem 1rem;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .m2-bubble.assistant {
+      background: var(--white);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .m2-bubble.user {
+      background: var(--teal);
+      color: var(--white);
+      border-bottom-right-radius: 4px;
+    }
+
+    .m2-typing {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      padding: 0.75rem 1rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+
+    .m2-typing-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--teal-mid);
+      border-radius: 50%;
+      animation: typingPulse 1.2s ease-in-out infinite;
+    }
+
+    .m2-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .m2-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingPulse {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-3px); }
+    }
+
+    .m2-summary-container {
+      display: none;
+      background: var(--white);
+      border: 1.5px solid var(--sky);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin: 0.5rem 0;
+    }
+
+    .m2-summary-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .m2-summary-badge {
+      background: var(--lime);
+      color: var(--teal-dark);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .m2-summary-title {
+      font-family: 'Lora', serif;
+      font-size: 15px;
+      color: var(--teal);
+    }
+
+    .m2-summary-content {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.8;
+    }
+
+    .m2-input-area {
+      flex-shrink: 0;
+      padding: 0.75rem 0 1rem;
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-end;
+    }
+
+    .m2-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--white);
+      resize: none;
+      outline: none;
+      min-height: 48px;
+      max-height: 120px;
+      line-height: 1.5;
+      transition: border-color 0.2s;
+    }
+
+    .m2-input:focus { border-color: var(--teal); }
+
+    .m2-send-btn {
+      width: 44px;
+      height: 44px;
+      background: var(--coral);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .m2-send-btn:hover { background: #e86e3f; }
+
+    .m2-send-btn svg { width: 18px; height: 18px; fill: white; }
+
+    .m2-complete-btn {
+      display: none;
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--teal);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      margin: 0.75rem 0 1.5rem;
+      transition: background 0.2s;
+    }
+
+    .m2-complete-btn:hover { background: var(--teal-mid); }
+  </style>
+
+  <div class="module-header">
+    <button class="back-btn" onclick="goToDashboard()">← Dashboard</button>
+    <div class="module-header-info">
+      <div class="module-header-eyebrow">Module 2</div>
+      <div class="module-header-title">Your Ideal Client</div>
+    </div>
+  </div>
+
+  <div class="m2-layout">
+
+    <div class="m2-intro">
+      <strong>This is a conversation, not a form.</strong> I'll ask you questions one at a time about who you help and what they're going through. Just answer naturally — there are no wrong answers. At the end, I'll put together a complete Ideal Client summary for your funnel.
+    </div>
+
+    <div class="m2-chat-feed" id="m2-chat-feed">
+      <div class="m2-typing" id="m2-typing">
+        <div class="m2-typing-dot"></div>
+        <div class="m2-typing-dot"></div>
+        <div class="m2-typing-dot"></div>
+      </div>
+    </div>
+
+    <div id="m2-summary-container" class="m2-summary-container">
+      <div class="m2-summary-header">
+        <span class="m2-summary-badge">✓ Complete</span>
+        <span class="m2-summary-title">Your Ideal Client Avatar</span>
+      </div>
+      <div class="m2-summary-content" id="m2-summary-content"></div>
+    </div>
+
+    <div class="m2-input-area" id="m2-input-area">
+      <textarea
+        class="m2-input"
+        id="m2-input"
+        placeholder="Type your answer here..."
+        rows="1"
+        onkeydown="handleM2Input(event)"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"
+      ></textarea>
+      <button class="m2-send-btn" onclick="submitM2Message()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+
+    <button class="m2-complete-btn" id="m2-complete-btn" onclick="completeModule2()">
+      Save My ICA + Continue to Module 3 →
+    </button>
+
+  </div>
+
+  <div class="saved-toast" id="saved-toast-m2">✓ ICA saved — Module 3 unlocked!</div>
+
+</div>
 
 </body>
 </html>
