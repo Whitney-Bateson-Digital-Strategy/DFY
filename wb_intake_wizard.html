@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whitney Bateson — Done For You Funnel</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal: #02525d;
+    --teal-dark: #013840;
+    --teal-mid: #3a6068;
+    --coral: #ff7f50;
+    --blush: #ffcdcd;
+    --blush-light: #fff5f5;
+    --lime: #e3f696;
+    --sky: #aed3dd;
+    --sky-light: #c8e6ee;
+    --cream: #efeae3;
+    --white: #ffffff;
+    --text: #013840;
+    --text-mid: #3a6068;
+    --text-light: #7a9499;
+    --border: #d4e4e7;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* SCREENS */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── LANDING ── */
+  #screen-landing {
+    align-items: center;
+    justify-content: center;
+    background: var(--teal-dark);
+    padding: 2rem;
+  }
+
+  .landing-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .brand-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 0.5rem;
+  }
+
+  .brand-name {
+    font-family: 'Lora', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--teal);
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+  }
+
+  .brand-sub {
+    font-size: 13px;
+    color: var(--text-mid);
+    margin-bottom: 2rem;
+    letter-spacing: 0.05em;
+  }
+
+  .landing-divider {
+    width: 40px;
+    height: 2px;
+    background: var(--coral);
+    margin: 0 auto 2rem;
+    border-radius: 2px;
+  }
+
+  .landing-headline {
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    color: var(--teal);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .landing-body {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .email-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-mid);
+    text-align: left;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .email-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    background: var(--white);
+    margin-bottom: 0.75rem;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .email-input:focus { border-color: var(--teal); }
+
+  .returning-note {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 1.25rem;
+    font-style: italic;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    background: var(--coral);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-primary:hover { background: #e86e3f; }
+  .btn-primary:active { transform: scale(0.99); }
+
+  .welcome-back-msg {
+    background: var(--sky-light);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: 13px;
+    color: var(--teal);
+    margin-bottom: 1rem;
+    display: none;
+    text-align: left;
+  }
+
+  /* ── DASHBOARD ── */
+  #screen-dashboard { background: var(--cream); }
+
+  .dashboard-header {
+    background: var(--teal-dark);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dash-brand {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dash-brand-name {
+    font-family: 'Lora', serif;
+    color: var(--white);
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .dash-brand-sub {
+    font-size: 11px;
+    color: var(--sky);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .dash-client-pill {
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+    font-size: 12px;
+    color: var(--sky-light);
+  }
+
+  .dashboard-body {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .dash-welcome {
+    margin-bottom: 2rem;
+  }
+
+  .dash-welcome h2 {
+    font-family: 'Lora', serif;
+    font-size: 24px;
+    color: var(--teal);
+    margin-bottom: 0.4rem;
+  }
+
+  .dash-welcome p {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  .progress-bar-wrap {
+    background: var(--sky-light);
+    border-radius: 20px;
+    height: 6px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--coral);
+    border-radius: 20px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Module cards */
+  .module-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+
+  .module-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .module-card:hover:not(.locked) { border-color: var(--teal); box-shadow: 0 2px 12px rgba(2,82,93,0.08); }
+  .module-card.locked { cursor: default; opacity: 0.55; }
+  .module-card.completed { border-color: var(--sky); background: #f7fcfd; }
+
+  .module-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .module-icon.teal { background: var(--sky-light); }
+  .module-icon.coral { background: #fff0eb; }
+  .module-icon.lime { background: #f5fcd8; }
+
+  .module-info { flex: 1; }
+
+  .module-number {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-light);
+    margin-bottom: 0.2rem;
+  }
+
+  .module-title {
+    font-family: 'Lora', serif;
+    font-size: 16px;
+    color: var(--teal);
+    margin-bottom: 0.2rem;
+  }
+
+  .module-desc {
+    font-size: 12px;
+    color: var(--text-mid);
+  }
+
+  .module-status {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+
+  .status-todo { background: var(--cream); color: var(--text-mid); }
+  .status-inprogress { background: #fff7f0; color: var(--coral); }
+  .status-done { background: #edf8f0; color: #2d7a4a; }
+  .status-locked { background: var(--cream); color: var(--text-light); }
+
+  /* Access checklist card */
+  .access-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    border: 1.5px solid var(--border);
+    margin-bottom: 2rem;
+  }
+
+  .access-card h3 {
+    font-family: 'Lora', serif;
+    font-size: 15px;
+    color: var(--teal);
+    margin-bottom: 0.25rem;
+  }
+
+  .access-card p {
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-bottom: 1rem;
+  }
+
+  .access-items { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .access-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .access-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .access-check.checked { background: var(--teal); border-color: var(--teal); color: white; font-size: 11px; }
+
+  /* ── MODULE 1 ── */
+  #screen-module1 { background: var(--cream); }
+
+  .module-header {
+    background: var(--teal-dark);
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .back-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: var(--sky-light);
+    font-size: 13px;
+    padding: 0.4rem 0.85rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s;
+  }
+
+  .back-btn:hover { background: rgba(255,255,255,0.18); }
+
+  .module-header-info { flex: 1; }
+
+  .module-header-eyebrow {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--sky);
+    margin-bottom: 0.2rem;
+  }
+
+  .module-header-title {
+    font-family: 'Lora', serif;
+    font-size: 18px;
+    color: var(--white);
+  }
+
+  .module-body {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--coral);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field-group { margin-bottom: 1.5rem; }
+
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .field-hint {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    font-style: italic;
+  }
+
+  .field-input, .field-select, .field-textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--white);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .field-input:focus, .field-select:focus, .field-textarea:focus { border-color: var(--teal); }
+
+  .field-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .radio-group { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--white);
+  }
+
+  .radio-option:hover { border-color: var(--teal); }
+  .radio-option.selected { border-color: var(--teal); background: #f0f8fa; }
+
+  .radio-option input { margin-top: 2px; accent-color: var(--teal); }
+
+  .radio-label { font-size: 14px; color: var(--text); }
+  .radio-sublabel { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+  .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  .save-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .save-note { font-size: 12px; color: var(--text-light); }
+
+  .btn-save {
+    padding: 0.75rem 2rem;
+    background: var(--teal);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-save:hover { background: var(--teal-mid); }
+
+  .saved-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--teal);
+    color: white;
+    padding: 0.6rem 1.25rem;
+    border-radius: 20px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .saved-toast.show { opacity: 1; }
+
+  @media (max-width: 520px) {
+    .two-col { grid-template-columns: 1fr; }
+    .platform-grid { grid-template-columns: 1fr; }
+    .landing-card { padding: 2rem 1.5rem; }
+    .dashboard-header { padding: 1.25rem; }
+    .module-header { padding: 1rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1: LANDING / EMAIL ENTRY
+══════════════════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="landing-card">
+    <div class="brand-eyebrow">Done For You Funnel</div>
+    <div class="brand-name">Whitney Bateson</div>
+    <div class="brand-sub">Digital Strategy</div>
+    <div class="landing-divider"></div>
+    <div class="landing-headline">Let's build your lead gen funnel.</div>
+    <p class="landing-body">This is your onboarding hub. Complete each module at your own pace — your progress saves automatically so you can always pick up right where you left off.</p>
+
+    <div id="welcome-back-msg" class="welcome-back-msg">
+      ✓ Welcome back! We found your saved progress.
+    </div>
+
+    <label class="email-label" for="email-input">Your email address</label>
+    <input class="email-input" id="email-input" type="email" placeholder="you@yourpractice.com" />
+    <p class="returning-note">Returning? Use the same email to pick up where you left off.</p>
+    <button class="btn-primary" onclick="handleEmailSubmit()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2: DASHBOARD
+══════════════════════════════════════════ -->
+<div id="screen-dashboard" class="screen">
+  <div class="dashboard-header">
+    <div class="dash-brand">
+      <div class="dash-brand-name">Whitney Bateson</div>
+      <div class="dash-brand-sub">Done For You Funnel</div>
+    </div>
+    <div class="dash-client-pill" id="dash-client-email">—</div>
+  </div>
+
+  <div class="dashboard-body">
+    <div class="dash-welcome">
+      <h2 id="dash-greeting">Welcome! Let's get started.</h2>
+      <p>Complete each module below — you can do them in order, or come back to finish one later. We'll use everything you share here to build your funnel.</p>
+    </div>
+
+    <div class="progress-label">
+      <span>Your progress</span>
+      <span id="progress-text">0 of 4 complete</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+    </div>
+
+    <div class="module-list">
+
+      <div class="module-card" id="card-m1" onclick="goToModule1()">
+        <div class="module-icon teal">🏢</div>
+        <div class="module-info">
+          <div class="module-number">Module 1</div>
+          <div class="module-title">Business + Funnel Basics</div>
+          <div class="module-desc">Your practice, offer, platforms, and funnel goal</div>
+        </div>
+        <div class="module-status status-todo" id="status-m1">Start</div>
+      </div>
+
+      <div class="module-card locked" id="card-m2">
+        <div class="module-icon teal">👤</div>
+        <div class="module-info">
+          <div class="module-number">Module 2</div>
+          <div class="module-title">Your Ideal Client</div>
+          <div class="module-desc">A guided conversation about who you help and how</div>
+        </div>
+        <div class="module-status status-locked" id="status-m2">Locked</div>
+      </div>
+
+      <div class="module-card locked" id="card-m3">
+        <div class="module-icon coral">🧲</div>
+        <div class="module-info">
+          <div class="module-number">Module 3</div>
+          <div class="module-title">Your Lead Magnet</div>
+          <div class="module-desc">Create new, use existing, or improve what you have</div>
+        </div>
+        <div class="module-status status-locked" id="status-m3">Locked</div>
+      </div>
+
+      <div class="module-card locked" id="card-m4">
+        <div class="module-icon lime">✍️</div>
+        <div class="module-info">
+          <div class="module-number">Module 4</div>
+          <div class="module-title">Voice + Email Intel</div>
+          <div class="module-desc">Your tone, writing samples, and email content details</div>
+        </div>
+        <div class="module-status status-locked" id="status-m4">Locked</div>
+      </div>
+
+    </div>
+
+    <!-- Access checklist -->
+    <div class="access-card">
+      <h3>📋 Platform Access Checklist</h3>
+      <p>We'll need access to a few things to set everything up. Check each off once you've shared access with our team.</p>
+      <div class="access-items">
+        <div class="access-item">
+          <div class="access-check" id="chk-website" onclick="toggleCheck('website')"></div>
+          <span>Website admin access shared</span>
+        </div>
+        <div class="access-item">
+          <div class="access-check" id="chk-email" onclick="toggleCheck('email')"></div>
+          <span>Email platform access shared</span>
+        </div>
+        <div class="access-item">
+          <div class="access-check" id="chk-fb" onclick="toggleCheck('fb')"></div>
+          <span>Facebook Page + Ads Manager access shared</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3: MODULE 1
+══════════════════════════════════════════ -->
+<div id="screen-module1" class="screen">
+  <div class="module-header">
+    <button class="back-btn" onclick="goToDashboard()">← Dashboard</button>
+    <div class="module-header-info">
+      <div class="module-header-eyebrow">Module 1</div>
+      <div class="module-header-title">Business + Funnel Basics</div>
+    </div>
+  </div>
+
+  <div class="module-body">
+
+    <!-- Section A: About Your Practice -->
+    <div class="section-label">About Your Practice</div>
+
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label" for="f-firstname">Your first name</label>
+        <input class="field-input" id="f-firstname" type="text" placeholder="e.g. Sarah" />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="f-lastname">Your last name</label>
+        <input class="field-input" id="f-lastname" type="text" placeholder="e.g. Johnson" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="f-bizname">Business name</label>
+      <input class="field-input" id="f-bizname" type="text" placeholder="e.g. Nourished Life Nutrition" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="f-website">Website URL</label>
+      <input class="field-input" id="f-website" type="url" placeholder="https://yourwebsite.com" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">What type of practice do you have?</label>
+      <div class="radio-group">
+        <label class="radio-option" id="r-type-rd">
+          <input type="radio" name="practype" value="Registered Dietitian / Nutritionist" onchange="selectRadio('r-type', this)" />
+          <div><div class="radio-label">Registered Dietitian / Nutritionist</div></div>
+        </label>
+        <label class="radio-option" id="r-type-th">
+          <input type="radio" name="practype" value="Therapist / Counselor" onchange="selectRadio('r-type', this)" />
+          <div><div class="radio-label">Therapist / Counselor</div></div>
+        </label>
+        <label class="radio-option" id="r-type-hc">
+          <input type="radio" name="practype" value="Health / Wellness Coach" onchange="selectRadio('r-type', this)" />
+          <div><div class="radio-label">Health / Wellness Coach</div></div>
+        </label>
+        <label class="radio-option" id="r-type-ot">
+          <input type="radio" name="practype" value="Other" onchange="selectRadio('r-type', this)" />
+          <div><div class="radio-label">Other health or wellness professional</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="f-years">How long have you been in business?</label>
+      <select class="field-select" id="f-years">
+        <option value="">Select one...</option>
+        <option>Less than 1 year</option>
+        <option>1–2 years</option>
+        <option>3–5 years</option>
+        <option>6–10 years</option>
+        <option>10+ years</option>
+      </select>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- Section B: Your Offer -->
+    <div class="section-label">Your Offer + Funnel Goal</div>
+
+    <div class="field-group">
+      <label class="field-label" for="f-offer">What's the primary offer this funnel should drive people toward?</label>
+      <p class="field-hint">This is what a new subscriber should eventually say yes to — your 1:1 service, a group program, a course, etc.</p>
+      <input class="field-input" id="f-offer" type="text" placeholder="e.g. 3-month private nutrition coaching program" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">What's the next step for that offer?</label>
+      <div class="radio-group">
+        <label class="radio-option" id="r-cta-call">
+          <input type="radio" name="offercta" value="Book a free discovery call" onchange="selectRadio('r-cta', this)" />
+          <div><div class="radio-label">Book a free discovery call</div></div>
+        </label>
+        <label class="radio-option" id="r-cta-buy">
+          <input type="radio" name="offercta" value="Purchase directly" onchange="selectRadio('r-cta', this)" />
+          <div><div class="radio-label">Purchase directly</div></div>
+        </label>
+        <label class="radio-option" id="r-cta-wait">
+          <input type="radio" name="offercta" value="Join a waitlist" onchange="selectRadio('r-cta', this)" />
+          <div><div class="radio-label">Join a waitlist</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="f-offerurl">Link to your offer page <span style="font-weight:400;color:var(--text-light)">(if you have one)</span></label>
+      <input class="field-input" id="f-offerurl" type="url" placeholder="https://yourwebsite.com/work-with-me" />
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- Section C: Thank You Page -->
+    <div class="section-label">Thank You Page</div>
+
+    <div class="field-group">
+      <label class="field-label">After someone opts in, what should happen on your Thank You page?</label>
+      <p class="field-hint">This is the page they land on right after entering their email. What do you want them to do next?</p>
+      <div class="radio-group">
+        <label class="radio-option" id="r-ty-call">
+          <input type="radio" name="typage" value="Invite them to book a discovery call" onchange="selectRadio('r-ty', this)" />
+          <div>
+            <div class="radio-label">Invite them to book a discovery call</div>
+            <div class="radio-sublabel">Best if your main CTA is a consultation</div>
+          </div>
+        </label>
+        <label class="radio-option" id="r-ty-offer">
+          <input type="radio" name="typage" value="Promote a low-ticket offer" onchange="selectRadio('r-ty', this); toggleTyOfferField(true)" />
+          <div>
+            <div class="radio-label">Promote a low-ticket offer</div>
+            <div class="radio-sublabel">A paid product priced to convert on the spot</div>
+          </div>
+        </label>
+        <label class="radio-option" id="r-ty-resource">
+          <input type="radio" name="typage" value="Share a bonus free resource" onchange="selectRadio('r-ty', this); toggleTyOfferField(false)" />
+          <div>
+            <div class="radio-label">Share a bonus free resource</div>
+            <div class="radio-sublabel">A related freebie that adds more value</div>
+          </div>
+        </label>
+        <label class="radio-option" id="r-ty-confirm">
+          <input type="radio" name="typage" value="Just confirm the resource is on its way" onchange="selectRadio('r-ty', this); toggleTyOfferField(false)" />
+          <div>
+            <div class="radio-label">Just confirm the resource is on its way</div>
+            <div class="radio-sublabel">Simple confirmation, no extra CTA</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="field-group" id="ty-offer-detail" style="display:none">
+      <label class="field-label" for="f-ty-offer-name">What's the offer? Include the name, price, and link.</label>
+      <input class="field-input" id="f-ty-offer-name" type="text" placeholder="e.g. Meal Planning Starter Kit — $27 — yoursite.com/kit" />
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- Section D: Platforms -->
+    <div class="section-label">Your Platforms</div>
+
+    <div class="field-group">
+      <label class="field-label">Which email marketing platform are you on?</label>
+      <p class="field-hint">If you're not sure or don't have one yet, select "Not sure / don't have one" and we'll help you figure it out.</p>
+      <div class="radio-group">
+        <label class="radio-option" id="r-esp-kit">
+          <input type="radio" name="esp" value="Kit (formerly ConvertKit)" onchange="selectRadio('r-esp', this)" />
+          <div><div class="radio-label">Kit <span style="color:var(--text-light);font-size:12px">(formerly ConvertKit)</span></div></div>
+        </label>
+        <label class="radio-option" id="r-esp-ac">
+          <input type="radio" name="esp" value="ActiveCampaign" onchange="selectRadio('r-esp', this)" />
+          <div><div class="radio-label">ActiveCampaign</div></div>
+        </label>
+        <label class="radio-option" id="r-esp-ml">
+          <input type="radio" name="esp" value="MailerLite" onchange="selectRadio('r-esp', this)" />
+          <div><div class="radio-label">MailerLite</div></div>
+        </label>
+        <label class="radio-option" id="r-esp-mc">
+          <input type="radio" name="esp" value="Mailchimp" onchange="selectRadio('r-esp', this)" />
+          <div><div class="radio-label">Mailchimp</div></div>
+        </label>
+        <label class="radio-option" id="r-esp-fl">
+          <input type="radio" name="esp" value="Flodesk" onchange="selectRadio('r-esp', this)" />
+          <div><div class="radio-label">Flodesk</div></div>
+        </label>
+        <label class="radio-option" id="r-esp-ot">
+          <input type="radio" name="esp" value="Other" onchange="selectRadio('r-esp', this)" />
+          <div><div class="radio-label">Other</div></div>
+        </label>
+        <label class="radio-option" id="r-esp-no">
+          <input type="radio" name="esp" value="Not sure / don't have one" onchange="selectRadio('r-esp', this)" />
+          <div><div class="radio-label">Not sure / don't have one yet</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">What platform is your website on?</label>
+      <div class="radio-group">
+        <label class="radio-option" id="r-web-wp">
+          <input type="radio" name="webplatform" value="WordPress" onchange="selectRadio('r-web', this)" />
+          <div><div class="radio-label">WordPress</div></div>
+        </label>
+        <label class="radio-option" id="r-web-sq">
+          <input type="radio" name="webplatform" value="Squarespace" onchange="selectRadio('r-web', this)" />
+          <div><div class="radio-label">Squarespace</div></div>
+        </label>
+        <label class="radio-option" id="r-web-wix">
+          <input type="radio" name="webplatform" value="Wix" onchange="selectRadio('r-web', this)" />
+          <div><div class="radio-label">Wix</div></div>
+        </label>
+        <label class="radio-option" id="r-web-sf">
+          <input type="radio" name="webplatform" value="Showit" onchange="selectRadio('r-web', this)" />
+          <div><div class="radio-label">Showit</div></div>
+        </label>
+        <label class="radio-option" id="r-web-ot">
+          <input type="radio" name="webplatform" value="Other" onchange="selectRadio('r-web', this)" />
+          <div><div class="radio-label">Other</div></div>
+        </label>
+        <label class="radio-option" id="r-web-no">
+          <input type="radio" name="webplatform" value="No website yet" onchange="selectRadio('r-web', this)" />
+          <div><div class="radio-label">I don't have a website yet</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="f-listsize">How big is your current email list? <span style="font-weight:400;color:var(--text-light)">(approximate)</span></label>
+      <select class="field-select" id="f-listsize">
+        <option value="">Select one...</option>
+        <option>I don't have a list yet</option>
+        <option>Under 100</option>
+        <option>100–500</option>
+        <option>500–1,000</option>
+        <option>1,000–5,000</option>
+        <option>5,000+</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="f-anything-else">Anything else we should know before we get started?</label>
+      <textarea class="field-textarea" id="f-anything-else" placeholder="Any context, goals, concerns, or things that feel important to share upfront..."></textarea>
+    </div>
+
+  </div>
+
+  <!-- Sticky save bar -->
+  <div class="save-bar">
+    <span class="save-note">Your answers save to your progress record.</span>
+    <button class="btn-save" onclick="saveModule1()">Save + Continue →</button>
+  </div>
+
+  <div class="saved-toast" id="saved-toast">✓ Progress saved</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+  // ── State ──
+  let currentEmail = '';
+  let clientData = {};
+
+  const STORAGE_PREFIX = 'wbdyf_';
+
+  function storageKey(email) {
+    return STORAGE_PREFIX + email.toLowerCase().trim();
+  }
+
+  function loadClient(email) {
+    try {
+      const raw = localStorage.getItem(storageKey(email));
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  }
+
+  function saveClient(email, data) {
+    try {
+      localStorage.setItem(storageKey(email), JSON.stringify(data));
+    } catch(e) { console.warn('Storage unavailable'); }
+  }
+
+  // ── Screen navigation ──
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // ── Landing ──
+  function handleEmailSubmit() {
+    const emailInput = document.getElementById('email-input');
+    const email = emailInput.value.trim();
+
+    if (!email || !email.includes('@')) {
+      emailInput.style.borderColor = 'var(--coral)';
+      emailInput.focus();
+      return;
+    }
+
+    emailInput.style.borderColor = '';
+    currentEmail = email;
+
+    const existing = loadClient(email);
+    if (existing) {
+      clientData = existing;
+      document.getElementById('welcome-back-msg').style.display = 'block';
+      setTimeout(() => goToDashboard(), 800);
+    } else {
+      clientData = {
+        email: email,
+        createdAt: new Date().toISOString(),
+        modules: { m1: 'todo', m2: 'locked', m3: 'locked', m4: 'locked' },
+        access: { website: false, email: false, fb: false },
+        m1data: {}
+      };
+      saveClient(email, clientData);
+      goToDashboard();
+    }
+  }
+
+  // ── Dashboard ──
+  function goToDashboard() {
+    renderDashboard();
+    showScreen('screen-dashboard');
+  }
+
+  function renderDashboard() {
+    // Client pill
+    document.getElementById('dash-client-email').textContent = currentEmail;
+
+    // Greeting
+    const name = clientData.m1data && clientData.m1data.firstname;
+    document.getElementById('dash-greeting').textContent = name
+      ? `Welcome back, ${name}!`
+      : 'Welcome! Let\'s get started.';
+
+    // Module statuses
+    const modules = clientData.modules || {};
+    const statusMap = {
+      todo: { label: 'Start', cls: 'status-todo' },
+      inprogress: { label: 'In Progress', cls: 'status-inprogress' },
+      done: { label: '✓ Complete', cls: 'status-done' },
+      locked: { label: 'Locked', cls: 'status-locked' }
+    };
+
+    ['m1','m2','m3','m4'].forEach(m => {
+      const s = modules[m] || 'locked';
+      const el = document.getElementById(`status-${m}`);
+      const card = document.getElementById(`card-${m}`);
+      const info = statusMap[s] || statusMap.locked;
+      el.textContent = info.label;
+      el.className = `module-status ${info.cls}`;
+      if (s === 'locked') {
+        card.classList.add('locked');
+        card.onclick = null;
+      } else {
+        card.classList.remove('locked');
+        if (m === 'm1') card.onclick = () => goToModule1();
+      }
+    });
+
+    // Progress bar
+    const completed = ['m1','m2','m3','m4'].filter(m => modules[m] === 'done').length;
+    document.getElementById('progress-bar').style.width = `${(completed/4)*100}%`;
+    document.getElementById('progress-text').textContent = `${completed} of 4 complete`;
+
+    // Access checkboxes
+    const access = clientData.access || {};
+    ['website','email','fb'].forEach(k => {
+      const el = document.getElementById(`chk-${k}`);
+      if (access[k]) {
+        el.classList.add('checked');
+        el.textContent = '✓';
+      } else {
+        el.classList.remove('checked');
+        el.textContent = '';
+      }
+    });
+  }
+
+  function toggleCheck(key) {
+    if (!clientData.access) clientData.access = {};
+    clientData.access[key] = !clientData.access[key];
+    saveClient(currentEmail, clientData);
+    renderDashboard();
+  }
+
+  // ── Module 1 ──
+  function goToModule1() {
+    // Pre-fill saved data
+    const d = clientData.m1data || {};
+    setField('f-firstname', d.firstname);
+    setField('f-lastname', d.lastname);
+    setField('f-bizname', d.bizname);
+    setField('f-website', d.website);
+    setField('f-years', d.years);
+    setField('f-offer', d.offer);
+    setField('f-offerurl', d.offerurl);
+    setField('f-listsize', d.listsize);
+    setField('f-anything-else', d.anythingelse);
+    if (d.practype) setRadioValue('practype', d.practype);
+    if (d.offercta) setRadioValue('offercta', d.offercta);
+    if (d.typage) {
+      setRadioValue('typage', d.typage);
+      if (d.typage === 'Promote a low-ticket offer') toggleTyOfferField(true);
+    }
+    if (d.tyofferdetail) setField('f-ty-offer-name', d.tyofferdetail);
+    if (d.esp) setRadioValue('esp', d.esp);
+    if (d.webplatform) setRadioValue('webplatform', d.webplatform);
+
+    if (clientData.modules.m1 === 'todo') {
+      clientData.modules.m1 = 'inprogress';
+      saveClient(currentEmail, clientData);
+    }
+
+    showScreen('screen-module1');
+  }
+
+  function setField(id, val) {
+    const el = document.getElementById(id);
+    if (el && val !== undefined && val !== null) el.value = val;
+  }
+
+  function setRadioValue(name, value) {
+    const radios = document.querySelectorAll(`input[name="${name}"]`);
+    radios.forEach(r => {
+      if (r.value === value) {
+        r.checked = true;
+        r.closest('.radio-option').classList.add('selected');
+      }
+    });
+  }
+
+  function selectRadio(groupPrefix, input) {
+    document.querySelectorAll(`[id^="${groupPrefix}-"]`).forEach(el => el.classList.remove('selected'));
+    input.closest('.radio-option').classList.add('selected');
+  }
+
+  function toggleTyOfferField(show) {
+    document.getElementById('ty-offer-detail').style.display = show ? 'block' : 'none';
+  }
+
+  function saveModule1() {
+    const getVal = id => (document.getElementById(id) || {}).value || '';
+    const getRadio = name => {
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      return checked ? checked.value : '';
+    };
+
+    clientData.m1data = {
+      firstname: getVal('f-firstname'),
+      lastname: getVal('f-lastname'),
+      bizname: getVal('f-bizname'),
+      website: getVal('f-website'),
+      years: getVal('f-years'),
+      practype: getRadio('practype'),
+      offer: getVal('f-offer'),
+      offercta: getRadio('offercta'),
+      offerurl: getVal('f-offerurl'),
+      typage: getRadio('typage'),
+      tyofferdetail: getVal('f-ty-offer-name'),
+      esp: getRadio('esp'),
+      webplatform: getRadio('webplatform'),
+      listsize: getVal('f-listsize'),
+      anythingelse: getVal('f-anything-else'),
+      savedAt: new Date().toISOString()
+    };
+
+    clientData.modules.m1 = 'done';
+    clientData.modules.m2 = 'todo';
+    saveClient(currentEmail, clientData);
+
+    const toast = document.getElementById('saved-toast');
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      goToDashboard();
+    }, 1200);
+  }
+
+  // ── Enter key on landing ──
+  document.getElementById('email-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleEmailSubmit();
+  });
+</script>
+
+</body>
+</html>
