@@ -232,6 +232,11 @@ input[type="file"]{display:none}
       </div>
     </div>
 
+    <div id="submit-all-wrap" style="display:none;margin-top:1rem">
+      <button onclick="submitAll()" style="width:100%;padding:.85rem;background:var(--coral);color:white;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s">Submit All — Everything Is Ready to Go ✓</button>
+      <p style="font-size:12px;color:var(--text-light);text-align:center;margin-top:.5rem">Once you submit, all modules will be locked and your team will be notified.</p>
+    </div>
+
     <!-- Access Checklist — comprehensive -->
     <div class="section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--coral);margin-bottom:.6rem;margin-top:1.5rem">Part 2 — Platform Access</div>
     <div class="access-card">
@@ -345,6 +350,7 @@ input[type="file"]{display:none}
       </div>
     </div>
   </div>
+  <div class="toast" id="toast-submitted">✓ All done! Your team has been notified.</div>
 </div>
 
 <!-- MODULE 1 -->
@@ -659,8 +665,7 @@ input[type="file"]{display:none}
         <p style="font-size:12px;color:var(--text-mid);margin-bottom:.6rem">Not happy with the summary? You can keep chatting above to add more detail — Sam will generate an updated summary when you're done.</p>
       </div>
     </div>
-    <button class="complete-btn" id="m4-save-dash" onclick="saveM4ToDashboard()" style="display:block;width:100%;margin-top:.75rem;background:var(--white);color:var(--teal);border:1.5px solid var(--teal)">Save and Go to Dashboard</button>
-    <button class="complete-btn" id="m4-complete" onclick="completeM4()" style="display:block;width:100%;margin-top:.5rem">Submit All — Everything Is Ready to Go ✓</button>
+    <button class="complete-btn" id="m4-save-dash" onclick="saveM4ToDashboard()" style="display:block;width:100%;margin-top:.75rem">OK, Finished — Go to Dashboard</button>
   </div>
   <div class="toast" id="toast-m4-saved">✓ Progress saved!</div>
   <div class="toast" id="toast-m4">✓ All done! Your team has been notified.</div>
@@ -701,6 +706,7 @@ function toDb(d) {
     email: d.email,
     module_1_status: d.mods.m1, module_2_status: d.mods.m2, module_3_status: d.mods.m3, module_4_status: d.mods.m4,
     access_website: d.access.website, access_email: d.access.email, access_fb: d.access.fb,
+    submitted: d.submitted || false,
     m1_data: d.m1 || {}, m2_data: d.m2 || {}, m3_data: d.m3 || {}, m4_data: d.m4 || {}
   };
 }
@@ -709,6 +715,7 @@ function fromDb(r) {
     email: r.email,
     mods: { m1: r.module_1_status||'todo', m2: r.module_2_status||'locked', m3: r.module_3_status||'locked', m4: r.module_4_status||'locked' },
     access: { website: r.access_website||false, email: r.access_email||false, fb: r.access_fb||false },
+    submitted: r.submitted||false,
     m1: r.m1_data||{}, m2: r.m2_data||{}, m3: r.m3_data||{}, m4: r.m4_data||{}
   };
 }
@@ -758,7 +765,7 @@ function renderDashboard() {
   var name = client.m1 && client.m1.firstname;
   document.getElementById('dash-greeting').textContent = name ? 'Welcome back, ' + name + '!' : "Welcome! Let's get started.";
   var map = { todo:['Start','s-todo'], inprogress:['In Progress','s-inprogress'], done:['✓ Complete','s-done'], locked:['Locked','s-locked'] };
-  var finalSubmitted = client.mods.m4 === 'done';
+  var finalSubmitted = !!client.submitted;
   ['m1','m2','m3','m4'].forEach(function(m) {
     var s = client.mods[m] || 'locked';
     var info = map[s] || map.locked;
@@ -773,6 +780,9 @@ function renderDashboard() {
   var done = ['m1','m2','m3','m4'].filter(function(m){ return client.mods[m] === 'done'; }).length;
   document.getElementById('prog-bar').style.width = (done / 4 * 100) + '%';
   document.getElementById('prog-text').textContent = done + ' of 4 complete';
+  // Submit all button — show when all 4 modules done but not yet submitted
+  var submitWrap = document.getElementById('submit-all-wrap');
+  if (submitWrap) { submitWrap.style.display = (done === 4 && !finalSubmitted) ? 'block' : 'none'; }
   var submitBanner = document.getElementById('all-submitted-banner');
   if (submitBanner) { submitBanner.style.display = finalSubmitted ? 'block' : 'none'; }
   // Access items
@@ -809,7 +819,7 @@ function confirmAccess(key) {
 }
 
 // ── Module 1 ──
-function allSubmitted() { return client.mods.m4 === 'done'; }
+function allSubmitted() { return !!client.submitted; }
 function openM1() {
   if (allSubmitted()) return;
   var d = client.m1 || {};
@@ -1300,13 +1310,14 @@ function toggleM4Chat() {
 }
 function saveM4ToDashboard() {
   saveM4();
-  showToast('toast-m4-saved');
+  client.mods.m4 = 'done';
+  sbSave(client); showToast('toast-m4-saved');
   setTimeout(function(){ renderDashboard(); goTo('dashboard'); }, 1200);
 }
-function completeM4() {
-  if (!confirm('Once you submit, all modules will be locked and you will not be able to go back and edit any of your answers.\n\nAre you sure you want to submit?')) return;
-  client.mods.m4 = 'done';
-  sbSave(client); showToast('toast-m4');
+function submitAll() {
+  if (!confirm('Once you submit, all modules will be locked and you will not be able to go back and edit any of your answers.\n\nAre you sure everything is ready to go?')) return;
+  client.submitted = true;
+  sbSave(client); showToast('toast-submitted');
   setTimeout(function(){ renderDashboard(); goTo('dashboard'); }, 2000);
 }
 
