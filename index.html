@@ -165,6 +165,8 @@ input[type="file"]{display:none}
 .complete-btn{display:none;width:100%;padding:.85rem;background:var(--teal);color:white;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin:.65rem 0 1.25rem;transition:background .2s}
 .complete-btn:hover{background:var(--teal-mid)}
 
+.finish-chat-btn{width:100%;padding:.65rem 1rem;background:transparent;border:1.5px solid var(--coral);color:var(--coral);border-radius:var(--radius-sm);font-family:"DM Sans",sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:.5rem;flex-shrink:0}
+.finish-chat-btn:hover{background:var(--coral);color:white}
 @media(max-width:520px){.two-col{grid-template-columns:1fr}.landing-card{padding:2rem 1.25rem}.dash-header{padding:1.1rem 1.25rem}}
 </style>
 </head>
@@ -386,13 +388,16 @@ input[type="file"]{display:none}
   </div>
   <div class="chat-layout">
     <div class="chat-intro">
-      <strong>This is a conversation, not a form.</strong> I'll ask you questions one at a time about the ideal client for your specific offer. Remember — we're talking about the person who is a perfect fit for the offer you outlined in Module 1, not just anyone you help. Answer naturally — there are no wrong answers.
+      <strong>This is a conversation, not a form.</strong> I'll ask you questions about the ideal client for your specific offer — the perfect-fit person for what you outlined in Module 1. Answer naturally, there are no wrong answers.<br><br>
+      Claude will continue asking until it has enough to generate a strong summary — usually 5-7 questions. Once you've answered the key ones, a <strong>"Generate my summary"</strong> button will appear so you can wrap up whenever you're ready.<br><br>
+      <em>Note: Claude sometimes takes a few extra seconds to think before responding — that's normal!</em>
     </div>
-    <div class="chat-hint">💡 Press <strong>Enter</strong> to send your reply. Press <strong>Shift + Enter</strong> to add a new line.</div>
+    <div class="chat-hint">💡 Press <strong>Enter</strong> to send. Press <strong>Shift + Enter</strong> for a new line. You can also click <strong>"Generate my summary"</strong> at any time to wrap up early.</div>
     <div class="chat-feed" id="m2-feed">
       <div class="typing-indicator" id="m2-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
     </div>
     <div class="summary-box" id="m2-summary"><div class="summary-header"><span class="summary-badge">✓ Complete</span><span class="summary-title">Your Ideal Client Avatar</span></div><div class="summary-content" id="m2-summary-content"></div></div>
+    <button class="finish-chat-btn" id="m2-finish-btn" style="display:none" onclick="finishM2Early()">Generate my summary →</button>
     <div class="chat-input-area" id="m2-input-area">
       <textarea class="chat-input" id="m2-input" placeholder="Type your answer here..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();var t=this.value.trim();if(t&&!m2Busy){this.value='';this.style.height='auto';sendM2(t);}}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
       <button class="send-btn" id="m2-send" onclick="(function(){var inp=document.getElementById('m2-input');var t=inp.value.trim();if(t&&!m2Busy){inp.value='';inp.style.height='auto';sendM2(t);}})()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
@@ -544,12 +549,16 @@ input[type="file"]{display:none}
     <div><div class="mod-header-eyebrow">Module 4</div><div class="mod-header-title">Voice + Email Intel</div></div>
   </div>
   <div class="chat-layout">
-    <div class="chat-intro"><strong>Last one — and it's a conversation.</strong> I'll ask you about your voice, your story, and the specific details we need to write your welcome emails in a way that sounds exactly like you. The more you share, the better your emails will land.</div>
-    <div class="chat-hint">💡 Press <strong>Enter</strong> to send your reply. Press <strong>Shift + Enter</strong> to add a new line.</div>
+    <div class="chat-intro"><strong>Last one — and it's a conversation.</strong> I'll ask you about your voice, your story, and the details we need to write your welcome emails so they sound exactly like you.<br><br>
+      Claude will keep asking until it has enough — usually 5-7 questions. A <strong>"Generate my summary"</strong> button will appear once you've covered the key ones so you can wrap up whenever you're ready.<br><br>
+      <em>Note: Claude sometimes takes a few extra seconds to think — that's normal!</em>
+    </div>
+    <div class="chat-hint">💡 Press <strong>Enter</strong> to send. Press <strong>Shift + Enter</strong> for a new line. Click <strong>"Generate my summary"</strong> at any time to wrap up early.</div>
     <div class="chat-feed" id="m4-feed">
       <div class="typing-indicator" id="m4-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
     </div>
     <div class="summary-box" id="m4-summary"><div class="summary-header"><span class="summary-badge">✓ Complete</span><span class="summary-title">Voice + Email Intel Summary</span></div><div class="summary-content" id="m4-summary-content"></div></div>
+    <button class="finish-chat-btn" id="m4-finish-btn" style="display:none" onclick="finishM4Early()">Generate my summary →</button>
     <div class="chat-input-area" id="m4-input-area">
       <textarea class="chat-input" id="m4-input" placeholder="Type your answer here..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();var t=this.value.trim();if(t&&!m4Busy){this.value='';this.style.height='auto';sendM4(t);}}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
       <button class="send-btn" id="m4-send" onclick="(function(){var inp=document.getElementById('m4-input');var t=inp.value.trim();if(t&&!m4Busy){inp.value='';inp.style.height='auto';sendM4(t);}})()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
@@ -787,7 +796,7 @@ async function callAI(system, messages) {
 }
 
 // ── Module 2 ──
-var M2_SYSTEM = 'You are a warm, expert onboarding guide for Whitney Bateson Digital Strategy — a done-for-you lead gen funnel service for health and wellness professionals.\n\nYour job is to guide a friendly conversation to deeply understand the IDEAL CLIENT for this person\'s SPECIFIC OFFER. You are NOT asking about all their clients generally — you are asking about the perfect-fit person for the specific package or service they outlined. Ask ONE question at a time. Follow up when answers are vague. Be warm, encouraging, conversational.\n\nTOPICS to cover naturally (10-14 exchanges):\n1. Who their ideal client is for this specific offer — demographics, life stage, day-to-day\n2. The transformation their ideal client wants from this offer specifically\n3. How they will feel once they achieve that\n4. Their main struggle or problem right now\n5. What has gotten in the way — mental barriers, past attempts\n6. What they\'ve tried before and why it didn\'t work\n7. What is happening in their life NOW making this urgent\n8. What makes them trust a provider — what they value most\n9. Where they go to find help (Google, Instagram, referrals, podcasts, etc.)\n\nAlso ask if they have a website, blog, podcast, or social media you can look at — this helps you write more accurately in their world.\n\nAfter covering all topics, say you have everything needed and output EXACTLY:\n\n---ICA_SUMMARY_START---\n**Name:** [made-up first name for the avatar]\n**Who They Are:** [2-3 sentences on demographics and day-to-day life]\n**What They Want:** [the transformation they seek from this specific offer]\n**What\'s In Their Way:** [struggles, barriers, what they\'ve tried]\n**What\'s Happening Now:** [life trigger making this urgent]\n**How They Decide:** [trust signals and where they look for help]\n**In Their Own Words:** [1-2 sentences as if the ideal client is speaking]\n---ICA_SUMMARY_END---';
+var M2_SYSTEM = 'You are a warm, expert onboarding guide for Whitney Bateson Digital Strategy — a done-for-you lead gen funnel service for health and wellness professionals.\n\nGuide a SHORT, focused conversation (5-7 exchanges max) to understand the IDEAL CLIENT for this person\'s SPECIFIC OFFER. Ask ONE question at a time. Be warm and conversational. Do not ask every possible question — prioritize the most important ones.\n\nCover these topics efficiently:\n1. Who their ideal client is — brief demographics and life situation\n2. What transformation they want from this specific offer\n3. Their main struggle or problem right now\n4. What\'s making this urgent for them now\n5. Where they go to find help / what makes them trust a provider\n\nAfter 5-7 exchanges (or if the user clicks to end early and their message contains WRAP_UP_NOW), generate the summary immediately with whatever you have. Do not keep asking — wrap up.\n\nOutput EXACTLY:\n\n---ICA_SUMMARY_START---\n**Name:** [made-up first name for the avatar]\n**Who They Are:** [2-3 sentences on demographics and situation]\n**What They Want:** [the transformation they seek from this offer]\n**What\'s In Their Way:** [main struggles and what they\'ve tried]\n**What\'s Happening Now:** [life trigger making this urgent]\n**How They Decide:** [trust signals and where they look for help]\n**In Their Own Words:** [1-2 sentences as if the ideal client is speaking]\n---ICA_SUMMARY_END---';
 
 function openM2() {
   if (client.mods.m2 === 'locked') return;
@@ -825,10 +834,21 @@ async function sendM2(userText) {
       if (match) { m2Summary = match[1].trim(); showM2Summary(m2Summary); }
     } else { addBubble('m2-feed', 'assistant', reply); }
     saveM2();
+    checkM2FinishBtn();
   } catch(ex) { setTyping('m2-typing', false); addBubble('m2-feed', 'assistant', 'Something went wrong connecting to the AI. Please check your connection and try again. (' + ex.message + ')'); }
   m2Busy = false;
 }
 function saveM2() { client.m2 = { history: m2History, summary: m2Summary }; sbSave(client); }
+function checkM2FinishBtn() {
+  var exchanges = m2History.filter(function(m){ return m.role === 'user'; }).length;
+  var btn = document.getElementById('m2-finish-btn');
+  if (btn && exchanges >= 5 && !m2Summary) btn.style.display = 'block';
+}
+function finishM2Early() {
+  var btn = document.getElementById('m2-finish-btn');
+  if (btn) btn.style.display = 'none';
+  sendM2('WRAP_UP_NOW');
+}
 function showM2Summary(text) {
   var box = document.getElementById('m2-summary');
   box.style.display = 'block';
@@ -960,7 +980,7 @@ function saveM3() {
 }
 
 // ── Module 4 ──
-var M4_SYSTEM = 'You are a warm, expert onboarding guide for Whitney Bateson Digital Strategy — a done-for-you lead gen funnel service for health and wellness professionals.\n\nHave a friendly conversation to pull out everything needed to write the client\'s 4-email welcome sequence in their voice. Ask ONE question at a time. Be warm, encouraging, and specific. Use their name if you know it.\n\nTOPICS to cover naturally (12-16 exchanges):\n1. Their tone and voice — how do they communicate? 2-3 words that capture it\n2. Words or phrases they always use — and any to avoid\n3. Their origin story — why did they get into this work? What happened in their life or career?\n4. Their specialty framed for clients — what specifically do they help clients achieve?\n5. 2-3 personal facts (location, hobbies, pets/kids)\n6. 3 existing resources to point new subscribers to (blog posts, podcast episodes, other freebies)\n7. A common question or roadblock clients hit early on (feeds Email 3)\n8. One insight or reframe they wish more people in their niche knew (also Email 3)\n9. Their main offer name, what it includes, who it\'s for (feeds Email 4)\n10. Any discount or special offer for new subscribers (feeds Email 4)\n11. Ask for their website, blog, podcast, or Instagram — reviewing their content helps you write more accurately in their world\n12. Ask them to paste a recent email, caption, or anything written in their voice as a writing sample\n\nAfter covering all topics, say you have everything needed. Then output EXACTLY:\n\n---VOICE_SUMMARY_START---\n**Tone and voice:** [3-5 descriptive words]\n**Phrases they use:** [key phrases in their voice]\n**Phrases to avoid:** [anything they flagged]\n**Their story:** [2-3 sentences on their origin and why they do this work]\n**Their specialty:** [what they specifically help clients achieve]\n**Personal facts:** [2-3 humanizing details]\n**Resources to share:** [up to 3 with brief descriptions]\n**Web presence:** [website, blog, podcast, or social links they shared]\n**Email 3 - Roadblock:** [common early challenge their clients face]\n**Email 3 - Quick win:** [their key insight or reframe]\n**Email 4 - Offer:** [offer name, what it includes, who it\'s for]\n**Email 4 - CTA:** [next step and any new subscriber discount]\n**Writing sample notes:** [what their sample reveals about their voice]\n---VOICE_SUMMARY_END---';
+var M4_SYSTEM = 'You are a warm, expert onboarding guide for Whitney Bateson Digital Strategy — a done-for-you lead gen funnel service for health and wellness professionals.\n\nHave a SHORT, focused conversation (5-7 exchanges max) to get what you need to write the client\'s 4-email welcome sequence in their voice. Ask ONE question at a time. Be warm and specific.\n\nCover these topics efficiently:\n1. Their tone/voice — 2-3 words that capture how they communicate\n2. Their origin story — why they got into this work\n3. A common early roadblock their clients face + one quick-win insight (feeds Email 3)\n4. Their main offer details — name, what it includes, next step, any new subscriber discount (feeds Email 4)\n5. Ask them to paste a recent email, caption, or anything written in their voice\n6. Their website, blog, podcast, or Instagram if they want to share\n\nAfter 5-7 exchanges (or if the user\'s message contains WRAP_UP_NOW), generate the summary immediately with whatever you have. Do not keep asking.\n\nOutput EXACTLY:\n\n---VOICE_SUMMARY_START---\n**Tone and voice:** [3-5 descriptive words]\n**Phrases they use:** [key phrases]\n**Phrases to avoid:** [anything flagged]\n**Their story:** [2-3 sentences on origin and passion]\n**Their specialty:** [what they help clients achieve]\n**Web presence:** [website, blog, podcast, or social links shared]\n**Email 3 - Roadblock:** [common early challenge]\n**Email 3 - Quick win:** [their key insight or reframe]\n**Email 4 - Offer:** [offer name, what it includes, who it\'s for]\n**Email 4 - CTA:** [next step and any new subscriber discount]\n**Writing sample notes:** [what their sample reveals about their voice]\n---VOICE_SUMMARY_END---';
 
 function openM4() {
   if (client.mods.m4 === 'locked') return;
@@ -1004,10 +1024,21 @@ async function sendM4(userText) {
       if (match) { m4Summary = match[1].trim(); showM4Summary(m4Summary); }
     } else { addBubble('m4-feed', 'assistant', reply); }
     saveM4();
+    checkM4FinishBtn();
   } catch(ex) { setTyping('m4-typing', false); addBubble('m4-feed', 'assistant', 'Something went wrong. Please check your connection and try again. (' + ex.message + ')'); }
   m4Busy = false;
 }
 function saveM4() { client.m4 = { history: m4History, summary: m4Summary }; sbSave(client); }
+function checkM4FinishBtn() {
+  var exchanges = m4History.filter(function(m){ return m.role === 'user'; }).length;
+  var btn = document.getElementById('m4-finish-btn');
+  if (btn && exchanges >= 5 && !m4Summary) btn.style.display = 'block';
+}
+function finishM4Early() {
+  var btn = document.getElementById('m4-finish-btn');
+  if (btn) btn.style.display = 'none';
+  sendM4('WRAP_UP_NOW');
+}
 function showM4Summary(text) {
   var box = document.getElementById('m4-summary');
   box.style.display = 'block';
