@@ -771,10 +771,18 @@ function renderDashboard() {
     var btn = document.getElementById('chk-' + k + '-btn');
     if (client.access[k]) {
       item.classList.add('confirmed');
-      btn.innerHTML = '<span class="access-confirmed-badge">✓ Access Shared</span>';
+      if (k === 'fb') {
+        btn.innerHTML = '<span class="access-confirmed-badge">✓ Submitted</span>';
+      } else {
+        btn.innerHTML = '<span class="access-confirmed-badge">✓ Access Shared</span>';
+      }
     } else {
       item.classList.remove('confirmed');
-      btn.innerHTML = '<button class="access-confirm-btn" onclick="event.stopPropagation();confirmAccess(\'' + k + '\')">Mark as Shared</button>';
+      if (k === 'fb') {
+        btn.innerHTML = '<button class="access-confirm-btn" onclick="event.stopPropagation();saveFbAnswers()">Submit</button>';
+      } else {
+        btn.innerHTML = '<button class="access-confirm-btn" onclick="event.stopPropagation();confirmAccess(\'' + k + '\')">Mark as Shared</button>';
+      }
     }
   });
   var allConfirmed = client.access.website && client.access.email && client.access.fb;
